@@ -21,7 +21,7 @@ public class Main {
     Pattern aggregatePattern = Pattern.compile(args[1]);
     Pattern ignorePattern = args.length > 2 ? Pattern.compile(args[2]) : Pattern.compile("(?!x)x");
 
-    HashMap<String, Map.Entry<Integer, ArrayList<String>>> map = new HashMap<>();
+    LinkedHashMap<String, Map.Entry<Integer, ArrayList<String>>> map = new LinkedHashMap<>();
     try (BufferedReader reader =
         new BufferedReader(new FileReader(args[0], Charset.defaultCharset()))) {
       String line;
@@ -50,6 +50,7 @@ public class Main {
 
     ArrayList<Map.Entry<String, Map.Entry<Integer, ArrayList<String>>>> list =
         new ArrayList<>(map.entrySet());
+    // Sort by count in descending order, if counts are equal, sort by input order (earlier first).
     list.sort((o1, o2) -> o2.getValue().getKey().compareTo(o1.getValue().getKey()));
     for (Map.Entry<String, Map.Entry<Integer, ArrayList<String>>> entry : list) {
       System.out.printf(
