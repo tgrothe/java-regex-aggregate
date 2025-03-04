@@ -4,6 +4,9 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 public class Main {
   /**
@@ -31,6 +34,9 @@ public class Main {
       while ((line = reader.readLine()) != null) {
         Matcher aggregateMatcher = aggregatePattern.matcher(line);
         if (aggregateMatcher.find() && !ignorePattern.matcher(line).find()) {
+          if (aggregateMatcher.groupCount() < 1) {
+            throw new IllegalArgumentException("Invalid aggregate regex, no group found");
+          }
           String key = aggregateMatcher.group(1);
           map.computeIfAbsent(key, k -> new AbstractMap.SimpleEntry<>(new ArrayList<>(), 0));
           Map.Entry<ArrayList<String>, Integer> entry = map.get(key);
@@ -49,5 +55,27 @@ public class Main {
           "%04d - %s - %s%n",
           entry.getValue().getValue(), entry.getKey(), entry.getValue().getKey().get(0));
     }
+
+    System.out.println("Do you want to open the GUI? (y/n)");
+    boolean shouldOpenGui = new Scanner(System.in, Charset.defaultCharset()).nextLine().equals("y");
+    if (!shouldOpenGui) {
+      return;
+    }
+    // Create a tree view of the results.
+    DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+    for (Map.Entry<String, Map.Entry<ArrayList<String>, Integer>> entry : list) {
+      DefaultMutableTreeNode node =
+          new DefaultMutableTreeNode(entry.getKey() + " - " + entry.getValue().getValue());
+      for (String line : entry.getValue().getKey()) {
+        node.add(new DefaultMutableTreeNode(line));
+      }
+      root.add(node);
+    }
+    JTree tree = new JTree(new DefaultTreeModel(root));
+    JFrame frame = new JFrame();
+    frame.add(tree);
+    frame.setSize(300, 300);
+    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    frame.setVisible(true);
   }
 }
