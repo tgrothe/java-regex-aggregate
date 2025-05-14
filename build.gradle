@@ -36,7 +36,7 @@ spotless {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes 'Main-Class': 'Main'
+        attributes 'Main-Class': application.getMainClass()
     }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
